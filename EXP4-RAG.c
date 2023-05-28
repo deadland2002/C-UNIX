@@ -16,8 +16,8 @@ void getVals(Process processes[], int nR, int nP)
 {
     for (int i = 0; i < nP; i++){
         int *temp = (int *)malloc(sizeof(int) * nR);
-        for (int j = 0; j < nR; j++)
-        {
+        printf("\nEnter allocated resource value : ");
+        for (int j = 0; j < nR; j++){
             scanf("%d", &temp[j]);
         }
         processes[i].allocated = temp;
@@ -25,8 +25,8 @@ void getVals(Process processes[], int nR, int nP)
     }
     for (int i = 0; i < nP; i++){
         int *temp = (int *)malloc(sizeof(int) * nR);
-        for (int j = 0; j < nR; j++)
-        {
+        printf("\nEnter required resource value : ");
+        for (int j = 0; j < nR; j++){
             scanf("%d", &temp[j]);
         }
         processes[i].required = temp;
