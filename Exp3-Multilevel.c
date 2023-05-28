@@ -2,102 +2,101 @@
 #include <stdlib.h>
 
 typedef struct {
-    int processId;
-    int arrivalTime;
-    int burstTime;
+    int PID;
+    int AT;
+    int BT;
     int priority;
-    int remainingTime;
-    int endTime;
-    int turnaroundTime;
-    int waitingTime;
-    int responseTime;
+    int RemT;
+    int ET;
+    int TAT;
+    int WT;
+    int ResT;
 } Process;
 
-void getProcess(Process *process) {
-    printf("Enter Process ID: ");
-    scanf("%d", &process->processId);
+void getProcess(Process *process , int i) {
+    process->PID = i+1;
     printf("Enter Arrival Time: ");
-    scanf("%d", &process->arrivalTime);
+    scanf("%d", &process->AT);
     printf("Enter Burst Time: ");
-    scanf("%d", &process->burstTime);
+    scanf("%d", &process->BT);
     printf("Enter Priority (1 for Level 1, 2 for Level 2, 3 for Level 3): ");
     scanf("%d", &process->priority);
-    process->remainingTime = process->burstTime;
+    process->RemT = process->BT;
 }
 
-void calculateScheduling(Process *processes, int numProcesses) {
-    int timeQuantum[] = {2, 4};
-    int currentTime = 0;
-    int completedProcesses = 0;
+void calculateScheduling(Process *p_arr, int n) {
+    int TQ[] = {2, 4};
+    int CurrT = 0;
+    int ComP = 0;
 
     printf("\nGantt Chart:\n");
-    while (completedProcesses < numProcesses) {
-        int currentProcess = -1;
+    while (ComP < n) {
+        int CurrP = -1;
 
-        for (int i = 0; i < numProcesses; i++) {
-            if (processes[i].arrivalTime <= currentTime && processes[i].remainingTime > 0) {
-                if (currentProcess == -1) {
-                    currentProcess = i;
-                } else if (processes[i].priority < processes[currentProcess].priority) {
-                    currentProcess = i;
-                } else if (processes[i].priority == processes[currentProcess].priority &&
-                           processes[i].arrivalTime < processes[currentProcess].arrivalTime) {
-                    currentProcess = i;
+        for (int i = 0; i < n; i++) {
+            if (p_arr[i].AT <= CurrT && p_arr[i].RemT > 0) {
+                if (CurrP == -1) {
+                    CurrP = i;
+                } else if (p_arr[i].priority < p_arr[CurrP].priority) {
+                    CurrP = i;
+                } else if (p_arr[i].priority == p_arr[CurrP].priority &&
+                           p_arr[i].AT < p_arr[CurrP].AT) {
+                    CurrP = i;
                 }
             }
         }
 
-        if (currentProcess == -1) {
+        if (CurrP == -1) {
             printf(" Idle ");
-            currentTime++;
+            CurrT++;
         } else {
-            printf("  P%d  ", processes[currentProcess].processId);
+            printf("  P%d  ", p_arr[CurrP].PID);
 
-            if (processes[currentProcess].remainingTime <= timeQuantum[processes[currentProcess].priority - 1]) {
-                currentTime += processes[currentProcess].remainingTime;
-                processes[currentProcess].remainingTime = 0;
+            if (p_arr[CurrP].RemT <= TQ[p_arr[CurrP].priority - 1]) {
+                CurrT += p_arr[CurrP].RemT;
+                p_arr[CurrP].RemT = 0;
             } else {
-                currentTime += timeQuantum[processes[currentProcess].priority - 1];
-                processes[currentProcess].remainingTime -= timeQuantum[processes[currentProcess].priority - 1];
+                CurrT += TQ[p_arr[CurrP].priority - 1];
+                p_arr[CurrP].RemT -= TQ[p_arr[CurrP].priority - 1];
             }
 
-            if (processes[currentProcess].remainingTime == 0) {
-                processes[currentProcess].endTime = currentTime;
-                processes[currentProcess].turnaroundTime = processes[currentProcess].endTime - processes[currentProcess].arrivalTime;
-                processes[currentProcess].waitingTime = processes[currentProcess].turnaroundTime - processes[currentProcess].burstTime;
-                completedProcesses++;
+            if (p_arr[CurrP].RemT == 0) {
+                p_arr[CurrP].ET = CurrT;
+                p_arr[CurrP].TAT = p_arr[CurrP].ET - p_arr[CurrP].AT;
+                p_arr[CurrP].WT = p_arr[CurrP].TAT - p_arr[CurrP].BT;
+                ComP++;
             }
         }
     }
     printf("\n");
 }
 
-void printProcesses(Process *processes, int numProcesses) {
+void printp_arr(Process *p_arr, int n) {
     printf("%10s %10s %10s %10s %10s %10s %10s %10s\n", "PId", "AT", "BT", "Priority", "ET", "TAT", "WT", "RT");
-    for (int i = 0; i < numProcesses; i++) {
-        printf("%10d %10d %10d %10d %10d %10d %10d %10d\n", processes[i].processId, processes[i].arrivalTime,
-               processes[i].burstTime, processes[i].priority, processes[i].endTime, processes[i].turnaroundTime,
-               processes[i].waitingTime, processes[i].responseTime);
+    for (int i = 0; i < n; i++) {
+        printf("%10d %10d %10d %10d %10d %10d %10d %10d\n", p_arr[i].PID, p_arr[i].AT,
+               p_arr[i].BT, p_arr[i].priority, p_arr[i].ET, p_arr[i].TAT,
+               p_arr[i].WT, p_arr[i].ResT);
     }
 }
 
 int main() {
-    int numProcesses;
+    int n;
 
-    printf("Enter the number of processes: ");
-    scanf("%d", &numProcesses);
+    printf("Enter the number of processess: ");
+    scanf("%d", &n);
 
-    Process *processes = (Process *)malloc(sizeof(Process) * numProcesses);
+    Process *p_arr = (Process *)malloc(sizeof(Process) * n);
 
-    for (int i = 0; i < numProcesses; i++) {
+    for (int i = 0; i < n; i++) {
         printf("Process %d:\n", i + 1);
-        getProcess(&processes[i]);
+        getProcess(&p_arr[i],i);
     }
 
-    calculateScheduling(processes, numProcesses);
-    printProcesses(processes, numProcesses);
+    calculateScheduling(p_arr, n);
+    printp_arr(p_arr, n);
 
-    free(processes);
+    free(p_arr);
 
     return 0;
 }

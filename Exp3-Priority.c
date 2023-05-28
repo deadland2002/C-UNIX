@@ -2,66 +2,64 @@
 #include <stdlib.h>
 
 typedef struct {
-    int processId;
-    int arrivalTime;
-    int burstTime;
+    int PID;
+    int AT;
+    int BT;
     int priority;
-    int endTime;
-    int turnaroundTime;
-    int waitingTime;
+    int ET;
+    int TAT;
+    int WT;
 } Process;
 
 void getProcess(Process *process) {
-    printf("Enter Process ID: ");
-    scanf("%d", &(process->processId));
     printf("Enter Arrival Time: ");
-    scanf("%d", &(process->arrivalTime));
+    scanf("%d", &(process->AT));
     printf("Enter Burst Time: ");
-    scanf("%d", &(process->burstTime));
+    scanf("%d", &(process->BT));
     printf("Enter Priority: ");
     scanf("%d", &(process->priority));
 }
 
-void calculatePriority(Process *processes, int numProcesses) {
-    int *completionTime = (int *)malloc(sizeof(int) * numProcesses);
-    int *isCompleted = (int *)malloc(sizeof(int) * numProcesses);
+void calculatePriority(Process *p_arr, int n) {
+    int *completionTime = (int *)malloc(sizeof(int) * n);
+    int *isCompleted = (int *)malloc(sizeof(int) * n);
     int currentTime = 0;
     int completed = 0;
 
-    for (int i = 0; i < numProcesses; i++) {
+    for (int i = 0; i < n; i++) {
         isCompleted[i] = 0;
     }
 
     printf("\nGantt Chart:\n");
-    while (completed < numProcesses) {
-        int highestPriority = -1;
-        int highestPriorityIndex = -1;
+    while (completed < n) {
+        int HP = -1;
+        int HPIndex = -1;
 
-        for (int i = 0; i < numProcesses; i++) {
-            if (isCompleted[i] == 0 && processes[i].arrivalTime <= currentTime) {
-                if (highestPriority == -1 || processes[i].priority < highestPriority) {
-                    highestPriority = processes[i].priority;
-                    highestPriorityIndex = i;
+        for (int i = 0; i < n; i++) {
+            if (isCompleted[i] == 0 && p_arr[i].AT <= currentTime) {
+                if (HP == -1 || p_arr[i].priority < HP) {
+                    HP = p_arr[i].priority;
+                    HPIndex = i;
                 }
             }
         }
 
-        if (highestPriorityIndex == -1) {
+        if (HPIndex == -1) {
             printf("| Idle ");
             currentTime++;
             continue;
         }
 
-        int currentProcessIndex = highestPriorityIndex;
-        isCompleted[currentProcessIndex] = 1;
-        completionTime[currentProcessIndex] = currentTime + processes[currentProcessIndex].burstTime;
-        processes[currentProcessIndex].endTime = completionTime[currentProcessIndex];
-        processes[currentProcessIndex].turnaroundTime = processes[currentProcessIndex].endTime - processes[currentProcessIndex].arrivalTime;
-        processes[currentProcessIndex].waitingTime = processes[currentProcessIndex].turnaroundTime - processes[currentProcessIndex].burstTime;
+        int CPIndex = HPIndex;
+        isCompleted[CPIndex] = 1;
+        completionTime[CPIndex] = currentTime + p_arr[CPIndex].BT;
+        p_arr[CPIndex].ET = completionTime[CPIndex];
+        p_arr[CPIndex].TAT = p_arr[CPIndex].ET - p_arr[CPIndex].AT;
+        p_arr[CPIndex].WT = p_arr[CPIndex].TAT - p_arr[CPIndex].BT;
         completed++;
-        currentTime = completionTime[currentProcessIndex];
+        currentTime = completionTime[CPIndex];
 
-        printf("|  P%d  ", processes[currentProcessIndex].processId);
+        printf("|  P%d  ", p_arr[CPIndex].PID);
     }
     printf("|\n");
 
@@ -69,48 +67,49 @@ void calculatePriority(Process *processes, int numProcesses) {
     free(isCompleted);
 }
 
-void printProcesses(Process *processes, int numProcesses) {
+void printp_arr(Process *p_arr, int n) {
     printf("\n%10s %10s %10s %10s %10s %10s %10s\n", "PId", "AT", "BT", "Priority", "ET", "TAT", "WT");
 
-    int totalTurnaroundTime = 0;
-    int totalWaitingTime = 0;
+    int totalTAT = 0;
+    int totalWT = 0;
 
-    for (int i = 0; i < numProcesses; i++) {
-        printf("%10d %10d %10d %10d %10d %10d %10d\n", processes[i].processId, processes[i].arrivalTime,
-               processes[i].burstTime, processes[i].priority, processes[i].endTime, processes[i].turnaroundTime,
-               processes[i].waitingTime);
+    for (int i = 0; i < n; i++) {
+        printf("%10d %10d %10d %10d %10d %10d %10d\n", p_arr[i].PID, p_arr[i].AT,
+               p_arr[i].BT, p_arr[i].priority, p_arr[i].ET, p_arr[i].TAT,
+               p_arr[i].WT);
 
-        totalTurnaroundTime += processes[i].turnaroundTime;
-        totalWaitingTime += processes[i].waitingTime;
+        totalTAT += p_arr[i].TAT;
+        totalWT += p_arr[i].WT;
     }
 
-    double avgTurnaroundTime = (double)totalTurnaroundTime / numProcesses;
-    double avgWaitingTime = (double)totalWaitingTime / numProcesses;
+    double avgTAT = (double)totalTAT / n;
+    double avgWT = (double)totalWT / n;
 
-    printf("\nAverage Turnaround Time: %.2f\n", avgTurnaroundTime);
-    printf("Average Waiting Time: %.2f\n", avgWaitingTime);
+    printf("\nAverage Turnaround Time: %.2f\n", avgTAT);
+    printf("Average Waiting Time: %.2f\n", avgWT);
 }
 
 int main() {
-    int numProcesses;
+    int n;
 
-    printf("Enter the number of processes: ");
-    scanf("%d", &numProcesses);
+    printf("Enter the number of processess: ");
+    scanf("%d", &n);
 
-    Process *processes = (Process *)malloc(sizeof(Process) * numProcesses);
+    Process *p_arr = (Process *)malloc(sizeof(Process) * n);
 
-    for (int i = 0; i < numProcesses; i++) {
+    for (int i = 0; i < n; i++) {
         printf("Process %d:\n", i + 1);
-        getProcess(&processes[i]);
-        processes[i].endTime = 0;
-        processes[i].turnaroundTime = 0;
-        processes[i].waitingTime = 0;
+        getProcess(&p_arr[i]);
+        p_arr[i].PID = i+1;
+        p_arr[i].ET = 0;
+        p_arr[i].TAT = 0;
+        p_arr[i].WT = 0;
     }
 
-    calculatePriority(processes, numProcesses);
-    printProcesses(processes, numProcesses);
+    calculatePriority(p_arr, n);
+    printp_arr(p_arr, n);
 
-    free(processes);
+    free(p_arr);
 
     return 0;
 }

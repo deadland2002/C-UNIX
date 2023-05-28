@@ -3,90 +3,90 @@
 // Structure to represent a process
 struct Process {
     int pid;
-    int burst_time;
-    int arrival_time;
+    int BT;
+    int AT;
 };
 
 // Function to calculate average waiting time and turn around time
-void calculateWaitingTurnaroundTime(struct Process processes[], int n) {
-    int waiting_time[n], turnaround_time[n], completion_time[n];
-    float total_waiting_time = 0, total_turnaround_time = 0;
+void calculateTime(struct Process p_arr[], int n) {
+    int WT[n], TAT[n], CT[n];
+    float total_WT = 0, total_TAT = 0;
 
-    // Sort processes based on their arrival time (earliest first)
+    // Sort p_arr based on their arrival time (earliest first)
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
-            if (processes[j].arrival_time > processes[j + 1].arrival_time) {
-                struct Process temp = processes[j];
-                processes[j] = processes[j + 1];
-                processes[j + 1] = temp;
+            if (p_arr[j].AT > p_arr[j + 1].AT) {
+                struct Process temp = p_arr[j];
+                p_arr[j] = p_arr[j + 1];
+                p_arr[j + 1] = temp;
             }
         }
     }
 
     // Calculate completion time for each process
-    completion_time[0] = processes[0].arrival_time + processes[0].burst_time;
+    CT[0] = p_arr[0].AT + p_arr[0].BT;
     for (int i = 1; i < n; i++) {
-        int min_burst_time = processes[i].burst_time;
+        int min_BT = p_arr[i].BT;
         int min_burst_index = i;
         for (int j = i + 1; j < n; j++) {
-            if (processes[j].arrival_time <= completion_time[i - 1] && processes[j].burst_time < min_burst_time) {
-                min_burst_time = processes[j].burst_time;
+            if (p_arr[j].AT <= CT[i - 1] && p_arr[j].BT < min_BT) {
+                min_BT = p_arr[j].BT;
                 min_burst_index = j;
             }
         }
-        struct Process temp = processes[i];
-        processes[i] = processes[min_burst_index];
-        processes[min_burst_index] = temp;
-        completion_time[i] = completion_time[i - 1] + processes[i].burst_time;
+        struct Process temp = p_arr[i];
+        p_arr[i] = p_arr[min_burst_index];
+        p_arr[min_burst_index] = temp;
+        CT[i] = CT[i - 1] + p_arr[i].BT;
     }
 
     // Calculate waiting time and turnaround time for each process
     for (int i = 0; i < n; i++) {
-        waiting_time[i] = completion_time[i] - processes[i].arrival_time - processes[i].burst_time;
-        turnaround_time[i] = completion_time[i] - processes[i].arrival_time;
-        total_waiting_time += waiting_time[i];
-        total_turnaround_time += turnaround_time[i];
+        WT[i] = CT[i] - p_arr[i].AT - p_arr[i].BT;
+        TAT[i] = CT[i] - p_arr[i].AT;
+        total_WT += WT[i];
+        total_TAT += TAT[i];
     }
 
     // Display Gantt chart
     printf("Gantt Chart:\n");
     for (int i = 0; i < n; i++) {
-        printf("| P%d ", processes[i].pid);
+        printf("| P%d ", p_arr[i].pid);
     }
     printf("|\n");
 
     // Display process details
     printf("\nProcess\tBurst Time\tArrival Time\tWaiting Time\tTurnaround Time\n");
     for (int i = 0; i < n; i++) {
-        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].pid, processes[i].burst_time, processes[i].arrival_time, waiting_time[i], turnaround_time[i]);
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", p_arr[i].pid, p_arr[i].BT, p_arr[i].AT, WT[i], TAT[i]);
     }
 
     // Calculate average waiting time and turn around time
-    float avg_waiting_time = total_waiting_time / n;
-    float avg_turnaround_time = total_turnaround_time / n;
+    float avg_WT = total_WT / n;
+    float avg_TAT = total_TAT / n;
 
-    printf("\nAverage Waiting Time: %.2f\n", avg_waiting_time);
-    printf("Average Turnaround Time: %.2f\n", avg_turnaround_time);
+    printf("\nAverage Waiting Time: %.2f\n", avg_WT);
+    printf("Average Turnaround Time: %.2f\n", avg_TAT);
 }
 
 int main() {
     int n;
-    printf("Enter the number of processes: ");
+    printf("Enter the number of processess: ");
     scanf("%d", &n);
 
-    struct Process processes[n];
+    struct Process p_arr[n];
 
     // Input process details
     for (int i = 0; i < n; i++) {
         printf("Enter details for Process %d\n", i + 1);
-        processes[i].pid = i + 1;
+        p_arr[i].pid = i + 1;
         printf("Burst Time: ");
-        scanf("%d", &processes[i].burst_time);
+        scanf("%d", &p_arr[i].BT);
         printf("Arrival Time: ");
-        scanf("%d", &processes[i].arrival_time);
+        scanf("%d", &p_arr[i].AT);
     }
 
-    calculateWaitingTurnaroundTime(processes, n);
+    calculateTime(p_arr, n);
 
     return 0;
 }
