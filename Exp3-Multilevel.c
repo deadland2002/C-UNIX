@@ -71,8 +71,8 @@ void calculateScheduling(Process *p_arr, int n) {
     printf("\n");
 }
 
-void printp_arr(Process *p_arr, int n) {
-    printf("%10s %10s %10s %10s %10s %10s %10s %10s\n", "PId", "AT", "BT", "Priority", "ET", "TAT", "WT", "RT");
+void printTable(Process *p_arr, int n) {
+    printf("%10s %10s %10s %10s %10s %10s %10s %10s\n", "PId", "AT", "BT", "Priority", "ET", "TAT", "WT", "ResT");
     for (int i = 0; i < n; i++) {
         printf("%10d %10d %10d %10d %10d %10d %10d %10d\n", p_arr[i].PID, p_arr[i].AT,
                p_arr[i].BT, p_arr[i].priority, p_arr[i].ET, p_arr[i].TAT,
@@ -94,7 +94,7 @@ int main() {
     }
 
     calculateScheduling(p_arr, n);
-    printp_arr(p_arr, n);
+    printTable(p_arr, n);
 
     free(p_arr);
 
