@@ -14,19 +14,23 @@ bool deadlock = true;
 
 void getVals(Process processes[], int nR, int nP)
 {
-    for (int i = 0; i < nP; i++){
+    for (int i = 0; i < nP; i++)
+    {
         int *temp = (int *)malloc(sizeof(int) * nR);
-        printf("\nEnter allocated resource value : ");
-        for (int j = 0; j < nR; j++){
+        printf("\nEnter allocated resource value of process %d: ", i);
+        for (int j = 0; j < nR; j++)
+        {
             scanf("%d", &temp[j]);
         }
         processes[i].allocated = temp;
         processes[i].visited = false;
     }
-    for (int i = 0; i < nP; i++){
+    for (int i = 0; i < nP; i++)
+    {
         int *temp = (int *)malloc(sizeof(int) * nR);
-        printf("\nEnter required resource value : ");
-        for (int j = 0; j < nR; j++){
+        printf("\nEnter required resource value of process %d: ", i);
+        for (int j = 0; j < nR; j++)
+        {
             scanf("%d", &temp[j]);
         }
         processes[i].required = temp;
@@ -35,42 +39,51 @@ void getVals(Process processes[], int nR, int nP)
 
 bool checkRes(Process processess[], int *available, int nR, int i)
 {
-    for (int j = 0; j < nR; j++){
+    for (int j = 0; j < nR; j++)
+    {
         int val = processess[i].allocated[j] + available[j];
         if (val < processess[i].required[j])
         {
             return false;
         }
     }
-    for (int j = 0; j < nR; j++){
+    for (int j = 0; j < nR; j++)
+    {
         int val = processess[i].allocated[j] + available[j];
         available[j] = val;
     }
     return true;
 }
 
-void printSeries(int *series, int n)
+void printSeries(int *series, int n, int *available, int nR, Process processess[], int i)
 {
-    for (int j = 0; j < n; j++){
+    for (int j = 0; j < n; j++)
+    {
         printf("%d ", series[j]);
     }
+    printf("\n");
 }
 
-int isCycle(Process processess[], int nR, int nP, int i, int *available, int *series, int ind)
+int isCycle(Process processess[], int nR, int nP, int i, int available[], int *series, int ind)
 {
     if (processess[i].visited)
+    {
         return -1;
+    }
 
-    if (ind + 1 == nP){
-        if (checkRes(processess, available, nR, i)){
+    if (ind + 1 == nP)
+    {
+        if (checkRes(processess, available, nR, i))
+        {
             deadlock = false;
             series[ind] = i;
-            printSeries(series, nP);
+            printSeries(series, nP, available, nR, processess, i);
             return ind;
         }
         return -1;
     }
-    else{
+    else
+    {
         if (!checkRes(processess, available, nR, i))
             return -1;
 
@@ -78,9 +91,15 @@ int isCycle(Process processess[], int nR, int nP, int i, int *available, int *se
         series[ind] = i;
 
         bool flag = true;
-        for (int j = 0; j < nP; j++){
-            if (!processess[j].visited){
-                int cycle = isCycle(processess, nR, nP, j, available, series, ind + 1);
+        for (int j = 0; j < nP; j++)
+        {
+            if (!processess[j].visited)
+            {
+                int arr[nR];
+                for (int x = 0; x < nR; x++)
+                    arr[x] = available[x];
+
+                int cycle = isCycle(processess, nR, nP, j, arr, series, ind + 1);
                 if (cycle == -1)
                     flag = false;
                 else
@@ -113,12 +132,14 @@ int main()
     for (int j = 0; j < nR; j++)
         scanf("%d", &available[j]);
 
-    for (int i = 0; i < nP; i++){
+    for (int i = 0; i < nP; i++)
+    {
         int index = 0;
         int cycle = isCycle(processes, nR, nP, i, available, series, index);
     }
 
-    if (deadlock){
+    if (deadlock)
+    {
         printf("Deadlock present");
     }
     printf("\n");
